@@ -50,7 +50,8 @@ template <typename T>
 auto Between(Parser<T> const&, Parser<T> const&) -> CombinatorUnary<T>;
 
 template <typename T>
-auto NestedBetween(Parser<T> const&, Parser<T> const&) -> CombinatorUnary<T>;
+auto OptionalNestedBetween(Parser<T> const&, Parser<T> const&)
+    -> CombinatorUnary<T>;
 
 
 

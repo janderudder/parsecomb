@@ -184,25 +184,39 @@ auto Between(Parser<T> const& pl, Parser<T> const& pr) -> CombinatorUnary<T>
 
 
 template <typename T>
-auto NestedBetween(Parser<T> const& pl, Parser<T> const& pr)->CombinatorUnary<T>
+auto OptionalNestedBetween(Parser<T> const& pl, Parser<T> const& pr)
+    -> CombinatorUnary<T>
 {
     return [pl,pr](Parser<T> const& pm) -> Parser<T>
     {
         return [pl,pr,pm](ParserIO<T> const& input) -> ParserIO<T>
         {
-            auto const out_l = pl(input);
-
-            if (out_l.is_success())
+            if (!input.is_empty())
             {
-                auto const out_flat = Sequence(pm, pr)(out_l);
+                auto const out_m = pm(input);
 
-                if (out_flat.is_success()) {
-                    return out_flat;
+                if (out_m.is_success()) {
+                    return out_m;
                 }
 
-                return Between(pl,pr)(NestedBetween(pl,pr)(pm))(input);
-            }
+                auto const out_seq = Sequence(Sequence(pl, pm), pr)(input);
 
+                if (out_seq.is_success()) {
+                    return out_seq;
+                }
+
+                auto const out_left = pl(input);
+
+                if (out_left.is_success()) {
+                    auto const out_rec = OptionalNestedBetween(pl,pr)(pm)(out_left);
+                    if (out_rec.is_success()) {
+                        auto const out_right = pr(out_rec);
+                        if (out_right.is_success()) {
+                            return out_right;
+                        }
+                    }
+                }
+            }
             return input.fail();
         };
     };

@@ -79,3 +79,11 @@ Parser<T> : ParserIO<T> -> ParserIO<T>
 - In yet other words, a `Parser` object may be written directly by the programmer - often as a building block. But the library offers several primitive parsers, intended to be combined. A combination will produce new objects of type `Parser`, capable of more complicated logic.
 
 - `Parser<T1>` and `Parser<T2>` types do not mix together in a combination. An explicit conversion must be used. The `ConvertParser` function is such a way of constructing a new parser from one of another type.
+
+
+
+## Notes
+
+The combinator `OptionalNestedBetween` is a hopefully temporary way of getting around an important limitation of this library: the inability to produce recursive combinations of parsers.
+
+It makes it possible to parse with the same parser things like `(expression)` and `(expression (expression))`.
