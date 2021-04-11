@@ -47,7 +47,7 @@ void combinators_sample()
     test_parserw(56, FirstMatch(hello, in_parens(hello)), tokens2);
 
 
-    // Consume several Tokens, each being between parentheses
+    // Consume several tokens, each being between parentheses
     test_parserw(56, Several(in_parens(Some<Token>)), tokens1);
     test_parserw(56, Several(in_parens(Some<Token>)), tokens2);
 

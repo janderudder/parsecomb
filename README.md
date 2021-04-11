@@ -62,10 +62,20 @@ test_parser(Several(in_parens(Some<Token>)), tokens2);              // [true, 0]
 
 ## Overview
 
-- `Parser<T>` is a generic class that works on a contiguous collection of T's. It actually takes the type `ParserIO<T>` when invoked, converting the range or container passed in as input.
 
-- A `Parser<T>` may be a primitive parser applying a single piece of logic, or it may be any combination thereof.
+```hs
+Parser<T> : ParserIO<T> -> ParserIO<T>
+```
+
+
+- `Parser<T>` is a generic class that works on a contiguous collection of `T`s. It is a callable type, whose call operator takes a `ParserIO`.
+
+- `ParserIO<T>` is the generic type serving as input to and output from `Parser`. It can be constructed directly from a range or container of `T`s, enabling more convenient calls to `Parser` (like `parser(container)`).
 
 - A Combinator takes one or multiple parsers and wraps them in a new parser that represents the combination.
+
+- In other words, a `Parser` may be a simple parser applying a single piece of logic, or it may be any combination thereof.
+
+- In yet other words, a `Parser` object may be written directly by the programmer - often as a building block. But the library offers several primitive parsers, intended to be combined. A combination will produce new objects of type `Parser`, capable of more complicated logic.
 
 - `Parser<T1>` and `Parser<T2>` types do not mix together in a combination. An explicit conversion must be used. The `ConvertParser` function is such a way of constructing a new parser from one of another type.
