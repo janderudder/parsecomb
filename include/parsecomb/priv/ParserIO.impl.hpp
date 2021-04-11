@@ -2,29 +2,46 @@
 
 
 
+////////////////////////////////////////////////////////////////////////////////
 template <typename T>
-ParserIO<T>::ParserIO(cspan<token_type> tokens) noexcept:
-    m_status     {Status::Failure},
-    m_token_span {std::move(tokens)}
+constexpr ParserIO<T>::ParserIO() noexcept:
+    m_begin  {nullptr},
+    m_end    {nullptr},
+    m_status {Status::Fail}
 {
 }
 
 
 
 template <typename T>
-ParserIO<T>::ParserIO(token_type const& single_token) noexcept:
-    m_status     {Status::Failure},
-    m_token_span {&single_token, 1}
+constexpr ParserIO<T>::ParserIO(pointer beg, pointer end) noexcept:
+    ParserIO {Status::Fail, beg, end}
 {
 }
 
 
 
 template <typename T>
-template <typename U, typename>
-ParserIO<T>::ParserIO(U&& arg) noexcept:
-    m_status     {Failure},
-    m_token_span {std::forward<U>(arg)}
+constexpr ParserIO<T>::ParserIO(reference token) noexcept:
+    ParserIO {Status::Fail, &token, (&token)+1}
+{
+}
+
+
+
+template <typename T>
+template <typename It, typename /* is_iterator_v<It> */>
+constexpr ParserIO<T>::ParserIO(It beg, It end) noexcept:
+    ParserIO {Status::Fail, beg.operator->(), end.operator->()}
+{
+}
+
+
+
+template <typename T>
+template <typename Ctnr>
+constexpr ParserIO<T>::ParserIO(Ctnr const& container) noexcept:
+    ParserIO {container.begin(), container.end()}
 {
 }
 
@@ -32,9 +49,12 @@ ParserIO<T>::ParserIO(U&& arg) noexcept:
 
 // private ctor
 template <typename T>
-ParserIO<T>::ParserIO(Status stat, cspan<token_type> tokens) noexcept:
-    m_status     {stat},
-    m_token_span {std::move(tokens)}
+constexpr ParserIO<T>::ParserIO(
+    Status status, pointer beg, pointer end
+) noexcept:
+    m_begin  {beg},
+    m_end    {end},
+    m_status {status}
 {
 }
 
@@ -42,61 +62,82 @@ ParserIO<T>::ParserIO(Status stat, cspan<token_type> tokens) noexcept:
 
 ////////////////////////////////////////////////////////////////////////////////
 template <typename T>
-auto ParserIO<T>::fail() const -> ParserIO
+constexpr auto ParserIO<T>::succeed(size_t consume) const -> ParserIO
 {
-    return {Status::Failure, m_token_span};
+    return {Status::Success, m_begin+consume, m_end};
 }
 
 
 
 template <typename T>
-auto ParserIO<T>::succeed(size_t consume_count) const -> ParserIO
+constexpr auto ParserIO<T>::fail() const -> ParserIO
 {
-    if (consume_count >= size()) {
-        return {Status::Success, {}};
-    }
-    long long const keep_count = size()-consume_count;
-    return {Status::Success, m_token_span.last(keep_count)};
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-template <typename T>
-auto ParserIO<T>::tokens() const -> cspan<token_type> const&
-{
-    return m_token_span;
-}
-
-
-
-template <typename T>
-auto ParserIO<T>::size() const -> size_t
-{
-    return m_token_span.size();
-}
-
-
-
-template <typename T>
-auto ParserIO<T>::is_success() const -> bool
-{
-    return (m_status==Status::Success);
-}
-
-
-
-template <typename T>
-auto ParserIO<T>::is_empty() const -> bool
-{
-    return m_token_span.empty();
+    return {Status::Fail, m_begin, m_end};
 }
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 template <typename T>
-auto ParserIO<T>::operator[](size_t idx) const -> token_type const&
+constexpr auto ParserIO<T>::size() const -> size_t
 {
-    return m_token_span[idx];
+    return m_end - m_begin;
+}
+
+
+
+template <typename T>
+constexpr auto ParserIO<T>::is_empty() const -> bool
+{
+    return 0 == size();
+}
+
+
+
+template <typename T>
+constexpr auto ParserIO<T>::is_success() const -> bool
+{
+    return m_status == Status::Success;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+template <typename T>
+constexpr auto ParserIO<T>::operator[](size_t index) const noexcept -> reference
+{
+    return *(m_begin+index);
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+template <typename T>
+constexpr auto ParserIO<T>::begin() const -> iterator
+{
+    return m_begin;
+}
+
+
+
+template <typename T>
+constexpr auto ParserIO<T>::end() const -> iterator
+{
+    return m_end;
+}
+
+
+
+template <typename T>
+constexpr auto ParserIO<T>::cbegin() const -> iterator
+{
+    return m_begin;
+}
+
+
+
+template <typename T>
+constexpr auto ParserIO<T>::cend() const -> iterator
+{
+    return m_end;
 }
