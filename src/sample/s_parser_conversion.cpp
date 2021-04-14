@@ -1,3 +1,12 @@
+/*
+
+
+Demonstrate use of the function `ConvertParser`
+
+to build a `Parser<Token>` from a combination of several `Parser<char>`.
+
+
+*/
 #include "parsecomb/parsecomb.hpp"
 #include "parsecomb/test_parser.hpp"
 #include <iostream>
@@ -6,8 +15,8 @@
 #include <vector>
 
 
-// A token may contain other information beside its value, for instance position
-// in source. But here we'll just have string value.
+// A token may contain other information beside its value, for instance its
+// position in the source input. But here we'll just have string value.
 struct Token
 {
     std::string value;
@@ -19,13 +28,14 @@ struct Token
 // This program will work with two different Parser types :
 // Parser<Token> and Parser<char>.
 // char is another type of token too, because we can treat the value of 'Token',
-// which is string, as a collection of char.
+// which is a string, as a collection of char.
+// So Parser<char> works on an input that is none other than a Token.
 void parser_conversion_sample()
 {
     // We define some primitive ranges, building blocks.
-    Parser<char> const _ = TokenParser<char>('_');
-    auto const alpha     = RangeParser<char>('A', 'z');     // A-Z, a-z
-    auto const digit     = RangeParser<char>('0', '9');
+    Parser<char> const _     = TokenParser<char>('_');
+    auto const         alpha = RangeParser<char>('A', 'z');     // A-Z + a-z
+    auto const         digit = RangeParser<char>('0', '9');
 
 
     // We use combinators to specify what an identifier is allowed to look like.
@@ -41,25 +51,30 @@ void parser_conversion_sample()
     // Combinators only work with a single type of parsers, we cannot mix a
     // Parser<char> with a Parser<Token> in a combination.
     // But, it turns out that we can call a Parser<char> with a Token's value
-    // as input.
-    // We just need to tell the Parser<char> how to get its input from a Token.
+    // as input. So let's convert.
+    // We need a way to tell the Parser<char> how to get its input from a Token.
+    auto const token_to_input = [](Token const& token) { return token.value; };
+
+
+    // And we build a Parser<Token> that will internally use a combination of
+    // Parser<char> on the char string contained in the available Token.
     Parser<Token> const identifier_parser =
-        ConvertParser<Token>(
-            [](Token const& token) {return token.value;},
-            identifier_char_parser
-        );
+        ConvertParser<Token>(token_to_input, identifier_char_parser);
 
 
-    // The input: a collection of tokens.
-    std::vector<Token> const tokens {"ab_cd", "_abcd", "1abcd"};
+    // We can now use our object of type Parser<Token> to validate (or not) a
+    // token as an identifier.
+    test_parser(identifier_parser, Token{"ab_cd"}); // OK
+    test_parser(identifier_parser, Token{"_abcd"}); // OK
+    test_parser(identifier_parser, Token{"1abcd"}); // NOPE, begins with a digit
 
 
-    // We can now use the Parser<Token> to validate (or not) input as identifier.
-    test_parser(identifier_parser, tokens[0]); // OK
-    test_parser(identifier_parser, tokens[1]); // OK
-    test_parser(identifier_parser, tokens[2]); // Wrong, begins with digit
+    // Just grouping the same previous tokens...
+    Token const tokens[3] {"ab_cd", "_abcd", "1abcd"};
 
-    // If we want to consume as many identifiers we can from the input:
+
+    // ...to try and consume as many identifiers we can from the input.
     test_parser(OneOrMore(identifier_parser), tokens); // success: 2, remains: 1
+
 
 }
