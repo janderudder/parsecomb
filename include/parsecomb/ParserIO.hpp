@@ -28,6 +28,9 @@ public:
     template <typename It, typename=std::enable_if_t<is_iterator_v<It>>>
     constexpr ParserIO(It, It) noexcept;
 
+    template <size_t array_size>
+    constexpr ParserIO(T const(&)[array_size]) noexcept;
+
     template <typename Ctnr>
     constexpr ParserIO(Ctnr const&) noexcept;
 

@@ -38,6 +38,16 @@ constexpr ParserIO<T>::ParserIO(It beg, It end) noexcept:
 
 
 
+
+template <typename T>
+template <size_t array_size>
+constexpr ParserIO<T>::ParserIO(T const(&arr)[array_size]) noexcept:
+    ParserIO {Status::Fail, arr, arr+array_size}
+{
+}
+
+
+
 template <typename T>
 template <typename Ctnr>
 constexpr ParserIO<T>::ParserIO(Ctnr const& container) noexcept:
