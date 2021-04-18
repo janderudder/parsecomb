@@ -11,4 +11,8 @@ int main()
     std::cout << "\n";
 
     parser_conversion_sample();
+
+    std::cout << "\n";
+
+    variadic_combinators_sample();
 }
