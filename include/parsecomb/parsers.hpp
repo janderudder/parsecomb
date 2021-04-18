@@ -8,11 +8,11 @@ Parser<T> const Some;
 
 
 template <typename T>
-Parser<T> const No;
+Parser<T> const Any;
 
 
 template <typename T>
-Parser<T> const Any;
+Parser<T> const EmptyInput;
 
 
 

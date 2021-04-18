@@ -12,15 +12,15 @@ Parser<T> const Some = [](ParserIO<T> const& input) -> ParserIO<T>
 
 
 template <typename T>
-Parser<T> const No = [](ParserIO<T> const& input) -> ParserIO<T>
+Parser<T> const Any = [](ParserIO<T> const& input) -> ParserIO<T>
 {
-    return (input.is_empty()) ? input.succeed(0) : input.fail();
+    return (!input.is_empty()) ? input.succeed(1) : input.succeed(0);
 };
 
 
 
 template <typename T>
-Parser<T> const Any = [](ParserIO<T> const& input) -> ParserIO<T>
+Parser<T> const EmptyInput = [](ParserIO<T> const& input) -> ParserIO<T>
 {
-    return (!input.is_empty()) ? input.succeed(1) : input.succeed(0);
+    return (input.is_empty()) ? input.succeed(0) : input.fail();
 };
