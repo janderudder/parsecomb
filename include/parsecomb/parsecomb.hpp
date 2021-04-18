@@ -1,5 +1,6 @@
 #pragma once
 #include "parsecomb/generators.hpp"
+#include "parsecomb/variadic-combinators.hpp"
 #include "parsecomb/combinators.hpp"
 #include "parsecomb/Parser.hpp"
 #include "parsecomb/ParserIO.hpp"

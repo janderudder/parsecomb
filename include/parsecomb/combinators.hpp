@@ -8,7 +8,8 @@ template <typename T>
 using CombinatorUnary  = std::function<Parser<T>(Parser<T> const&)>;
 
 template <typename T>
-using CombinatorBinary = std::function<Parser<T>(Parser<T> const&, Parser<T> const&)>;
+using CombinatorBinary =
+    std::function<Parser<T>(Parser<T> const&, Parser<T> const&)>;
 
 
 
