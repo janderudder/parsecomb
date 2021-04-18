@@ -4,33 +4,23 @@
 
 
 template <typename T>
-auto Some(ParserIO<T> const& input) -> ParserIO<T>
+Parser<T> const Some = [](ParserIO<T> const& input) -> ParserIO<T>
 {
-    if (!input.is_empty()) {
-        return input.succeed(1);
-    }
-    return input.fail();
-}
+    return (!input.is_empty()) ? input.succeed(1) : input.fail();
+};
 
 
 
 template <typename T>
-auto No(ParserIO<T> const& input) -> ParserIO<T>
+Parser<T> const No = [](ParserIO<T> const& input) -> ParserIO<T>
 {
-    if (input.is_empty()) {
-        return input.succeed(0);
-    }
-    return input.fail();
-}
+    return (input.is_empty()) ? input.succeed(0) : input.fail();
+};
 
 
 
 template <typename T>
-auto Any(ParserIO<T> const& input) -> ParserIO<T>
+Parser<T> const Any = [](ParserIO<T> const& input) -> ParserIO<T>
 {
-    if (input.is_empty()) {
-        return input.succeed(0);
-    } else {
-        return input.succeed(1);
-    }
-}
+    return (!input.is_empty()) ? input.succeed(1) : input.succeed(0);
+};
